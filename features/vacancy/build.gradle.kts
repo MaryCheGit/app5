@@ -1,25 +1,16 @@
 plugins {
     id("com.android.library")
     kotlin("android")
-    kotlin("android.extensions")
     id("androidx.navigation.safeargs.kotlin")
 }
 
-repositories {
-    jcenter()
-    google()
-}
-
 android {
-    compileSdkVersion(Versions.compileSdkVersion)
-    buildToolsVersion = Versions.buildToolsVersion
+    namespace = "com.aaglobal.jnc_playground.vacancy"
+    compileSdk = Versions.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion(Versions.minSdkVersion)
-        targetSdkVersion(Versions.targetSdkVersion)
-
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = Versions.minSdkVersion
+        targetSdk = Versions.targetSdkVersion
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,17 +21,19 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
 
-androidExtensions {
-    isExperimental = true
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {

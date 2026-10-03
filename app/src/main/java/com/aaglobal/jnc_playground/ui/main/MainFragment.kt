@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.aaglobal.jnc_playground.R
+import com.aaglobal.jnc_playground.databinding.FragmentMainBinding
 import com.aaglobal.jnc_playground.extensions.setupWithNavController
-import kotlinx.android.synthetic.main.fragment_main.*
 
 /**
  * Main fragment -- container for bottom navigation
  */
 class MainFragment : Fragment(R.layout.fragment_main) {
+
+    private var _binding: FragmentMainBinding? = null
+    private val binding get() = _binding!!
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
@@ -22,6 +25,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentMainBinding.bind(view)
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
@@ -39,7 +43,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         )
 
         // Setup the bottom navigation view with a list of navigation graphs
-        fragment_main__bottom_navigation.setupWithNavController(
+        binding.fragmentMainBottomNavigation.setupWithNavController(
             navGraphIds = navGraphIds,
             fragmentManager = childFragmentManager,
             containerId = R.id.fragment_main__nav_host_container,
@@ -47,5 +51,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         )
     }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

@@ -3,23 +3,25 @@ package com.aaglobal.jnc_playground.ui.vacancy_list
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.aaglobal.jnc_playground.di.GlobalDI
 import com.aaglobal.jnc_playground.R
 import com.aaglobal.jnc_playground.core.ui.DisplayableItem
+import com.aaglobal.jnc_playground.databinding.FragmentVacancyListBinding
+import com.aaglobal.jnc_playground.di.GlobalDI
 import com.aaglobal.jnc_playground.ui.vacancy_list.adapter.VacancyItem
 import com.aaglobal.jnc_playground.ui.vacancy_list.adapter.vacancyItemAdapter
+import com.hannesdorfmann.adapterdelegates4.AdapterDelegatesManager
 import com.hannesdorfmann.adapterdelegates4.ListDelegationAdapter
-import kotlinx.android.synthetic.main.fragment_vacancy_list.*
-
 
 class VacancyListFragment : Fragment(R.layout.fragment_vacancy_list) {
+
+    private var _binding: FragmentVacancyListBinding? = null
+    private val binding get() = _binding!!
 
     companion object {
         private const val ARGS_VACANCY_LIST_TYPE = "args_type"
 
         fun newInstance(vacancyType: String, vacancyListRouterSource: VacancyListRouterSource): VacancyListFragment {
-            GlobalDI.putVacancyListRouterSource(vacancyType, vacancyListRouterSource)
+            GlobalDI.putVacancyListRouterSource(vacancyListType = vacancyType, vacancyListRouterSource)
 
             return VacancyListFragment().apply {
                 arguments = Bundle().apply {
@@ -29,37 +31,45 @@ class VacancyListFragment : Fragment(R.layout.fragment_vacancy_list) {
         }
     }
 
-
     private val delegationAdapter by lazy {
         ListDelegationAdapter<List<DisplayableItem>>(
-            vacancyItemAdapter {
-                routerSource.navigateToVacancyScreen(it)
+            AdapterDelegatesManager<List<DisplayableItem>>().apply {
+                addDelegate(
+                    vacancyItemAdapter { item, sharedView ->
+                        routerSource.navigateToVacancyScreen(item = item, sharedView = sharedView)
+                    }
+                )
             }
         )
     }
 
     private val vacancyListType: String get() = requireArguments().getString(ARGS_VACANCY_LIST_TYPE).orEmpty()
-    private val routerSource: VacancyListRouterSource by lazy { requireNotNull(GlobalDI.fetchVacancyListRouterSource(vacancyListType)) }
-
+    private val routerSource: VacancyListRouterSource by lazy {
+        requireNotNull(GlobalDI.fetchVacancyListRouterSource(vacancyListType))
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_vacancy_list__text__title.text = vacancyListType
+        _binding = FragmentVacancyListBinding.bind(view)
 
-        with(fragment_vacancy_list__recycler) {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = delegationAdapter
-        }
+        binding.fragmentVacancyListRecycler.adapter = delegationAdapter
+        binding.fragmentVacancyListTextTitle.text = vacancyListType
 
-        delegationAdapter.items = IntRange(0, 3).map { index ->
+        // Заглушка: наполняем список тестовыми данными
+        val mockVacancies: List<DisplayableItem> = List(10) { index ->
             VacancyItem(
-                id = "$index",
-                name = "$vacancyListType vac"
+                id = "id_$index",
+                name = "Vacancy #$index"
             )
         }
-        delegationAdapter.notifyDataSetChanged()
+        delegationAdapter.items = mockVacancies
     }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Важно: обнуляем adapter, чтобы RecyclerView не удерживал ссылки
+        binding.fragmentVacancyListRecycler.adapter = null
+        _binding = null
+    }
 }

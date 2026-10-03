@@ -8,8 +8,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.fragment.NavHostFragment
-import com.aaglobal.jnc_playground.R
+import androidx.navigation.ui.R as NavUiR
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
@@ -90,10 +91,10 @@ fun BottomNavigationView.setupWithNavController(
                     // to it, creating the fixed started destination.
                     fragmentManager.beginTransaction()
                         .setCustomAnimations(
-                            R.anim.nav_default_enter_anim,
-                            R.anim.nav_default_exit_anim,
-                            R.anim.nav_default_pop_enter_anim,
-                            R.anim.nav_default_pop_exit_anim
+                            NavUiR.anim.nav_default_enter_anim,
+                            NavUiR.anim.nav_default_exit_anim,
+                            NavUiR.anim.nav_default_pop_enter_anim,
+                            NavUiR.anim.nav_default_pop_exit_anim
                         )
                         .attach(selectedFragment)
                         .setPrimaryNavigationFragment(selectedFragment)
@@ -178,7 +179,7 @@ private fun BottomNavigationView.setupItemReselected(
         val navController = selectedFragment.navController
         // Pop the back stack to the start destination of the current navController graph
         navController.popBackStack(
-            navController.graph.startDestination, false
+            navController.graph.startDestinationId, false
         )
     }
 }

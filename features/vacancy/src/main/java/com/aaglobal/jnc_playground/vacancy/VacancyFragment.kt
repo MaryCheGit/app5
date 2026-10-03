@@ -1,45 +1,79 @@
 package com.aaglobal.jnc_playground.vacancy
 
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.util.Log
 import android.view.View
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.fragment_vacancy.*
+import com.aaglobal.jnc_playground.vacancy.databinding.FragmentVacancyBinding
 import kotlin.random.Random
 
-
 class VacancyFragment : Fragment(R.layout.fragment_vacancy) {
+
+    private var _binding: FragmentVacancyBinding? = null
+    private val binding get() = _binding!!
 
     companion object {
         private const val LOG_TAG = "VacancyFragment"
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // ─── Shared Element Transition: настройка анимаций ───
+        sharedElementEnterTransition = TransitionInflater.from(requireContext())
+            .inflateTransition(android.R.transition.move)
+
+        sharedElementReturnTransition = TransitionInflater.from(requireContext())
+            .inflateTransition(android.R.transition.move)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        _binding = FragmentVacancyBinding.bind(view)
 
         // We lose possibility to use delegation `navArgs` =(
         val vacancyId = arguments?.getString("vacancyId")!!
 
         Log.d(LOG_TAG, "onViewCreated | args: $vacancyId")
 
-        fragment_vacancy__text__title.text = getString(R.string.fragment_vacancy__title, vacancyId)
+        binding.fragmentVacancyTextTitle.text = "Vacancy [id: $vacancyId]"
 
-        fragment_vacancy__button__next_vacancy.setOnClickListener {
-            // As we defined part of navigation graph for this screen, we can use actions and navigation controllers
+        // ─── Shared Element Transition: transitionName должен совпадать с тем,
+
+        binding.fragmentVacancyTextTitle.transitionName = extractTransitionName(vacancyId)
+
+        binding.fragmentVacancyButtonNextVacancy.setOnClickListener {
+            // As we defined part of navigation graph for this screen,
+            // we can use actions and navigation controllers
             val newVacancyId = "${vacancyId}+${Random.nextInt(10)}"
             findNavController().navigate(
-                VacancyFragmentDirections.actionVacancyFragmentToVacancyFragment(newVacancyId)
+                directions = VacancyFragmentDirections.actionVacancyFragmentToVacancyFragment(newVacancyId)
             )
         }
 
-        fragment_vacancy__button__open_company_flow.setOnClickListener {
+        binding.fragmentVacancyButtonOpenCompanyFlow.setOnClickListener {
             // Navigation through deep link
             val companyFlowUri = "companyflow://company".toUri()
-            findNavController().navigate(companyFlowUri)
+            findNavController().navigate(deepLink = companyFlowUri)
         }
     }
 
+    /**
+     * vacancyId приходит в формате "Vacancy #N|id_N".
+     * Для transitionName нам нужен только "id_N" — тот же, что использовался
+     * в адаптере (item.id).
+     */
+    private fun extractTransitionName(vacancyId: String): String {
+        val id = vacancyId.substringAfter("|", missingDelimiterValue = vacancyId)
+        return "vacancy_title_$id"
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

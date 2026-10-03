@@ -5,18 +5,28 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.aaglobal.jnc_playground.R
-import kotlinx.android.synthetic.main.fragment_profile_container.*
-
+import com.aaglobal.jnc_playground.databinding.FragmentProfileContainerBinding
 
 class ProfileContainerFragment : Fragment(R.layout.fragment_profile_container) {
+
+    private var _binding: FragmentProfileContainerBinding? = null
+    private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_profile_container__button__open_auth_flow.setOnClickListener {
-            Navigation.findNavController(requireActivity(), R.id.activity_root__fragment__nav_host)
-                .navigate(R.id.action__MainFragment__to__AuthFlow)
+        _binding = FragmentProfileContainerBinding.bind(view)
+
+        binding.fragmentProfileContainerButtonOpenAuthFlow.setOnClickListener {
+            Navigation.findNavController(
+                activity = requireActivity(),
+                viewId = R.id.activity_root__fragment__nav_host
+            ).navigate(resId = R.id.action__MainFragment__to__AuthFlow)
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

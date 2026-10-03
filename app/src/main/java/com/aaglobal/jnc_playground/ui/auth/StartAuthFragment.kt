@@ -4,20 +4,26 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import com.aaglobal.jnc_playground.databinding.FragmentStartAuthBinding
 import com.aaglobal.jnc_playground.R
-import kotlinx.android.synthetic.main.fragment_start_auth.*
 
 class StartAuthFragment : Fragment(R.layout.fragment_start_auth) {
 
-    private val args: StartAuthFragmentArgs by navArgs()
+    private var _binding: FragmentStartAuthBinding? = null
+    private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_start_auth__button.setOnClickListener {
-            findNavController().navigate(R.id.action__StartAuthFragment__to__FinishAuthFragment)
+        _binding = FragmentStartAuthBinding.bind(view)
+
+        binding.fragmentStartAuthButton.setOnClickListener {
+            findNavController().navigate(resId = R.id.action__StartAuthFragment__to__FinishAuthFragment)
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
